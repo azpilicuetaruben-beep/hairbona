@@ -15,8 +15,9 @@ model Service {
   price        Float?
   order        Int           @default(0)
   active       Boolean       @default(true)
-  appointments Appointment[]
-  createdAt    DateTime      @default(now())
+  appointments  Appointment[]
+  manualIncomes ManualIncome[]
+  createdAt     DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
@@ -28,8 +29,9 @@ model Barber {
   whatsapp     String?       // phone number
   order        Int           @default(0)
   active       Boolean       @default(true)
-  appointments Appointment[]
-  createdAt    DateTime      @default(now())
+  appointments  Appointment[]
+  manualIncomes ManualIncome[]
+  createdAt     DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
@@ -151,4 +153,19 @@ model Review {
   approved  Boolean  @default(true) // Auto-approve or require admin approval
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ManualIncome {
+  id          String   @id @default(cuid())
+  amount      Float
+  description String?
+  date        String   // YYYY-MM-DD
+  barberId    String
+  barber      Barber   @relation(fields: [barberId], references: [id])
+  serviceId   String?  // Optional service link
+  service     Service? @relation(fields: [serviceId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([date])
+  @@index([barberId])
 }

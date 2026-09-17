@@ -10,16 +10,21 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const date = searchParams.get('date');
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
 
-    if (!date) {
-      return NextResponse.json({ error: 'Date is required' }, { status: 400 });
+    if (!from || !to) {
+      return NextResponse.json({ error: 'From and to dates are required' }, { status: 400 });
     }
 
-    // Get all completed appointments for the day
+    const dateFilter = from === to 
+      ? from 
+      : { gte: from, lte: to };
+
+    // Get all completed appointments for the period
     const appointments = await prisma.appointment.findMany({
       where: {
-        date: date,
+        date: dateFilter,
         status: 'completed',
       },
       include: {
@@ -28,30 +33,62 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Get all manual incomes for the period
+    const manualIncomes = await prisma.manualIncome.findMany({
+      where: {
+        date: dateFilter,
+      },
+      include: {
+        barber: true,
+        service: true,
+      },
+    });
+
     // Group by barber
-    const earningsByBarber = appointments.reduce((acc, app) => {
-      const barberId = app.barberId;
+    const earningsByBarber = [...appointments, ...manualIncomes].reduce((acc, item) => {
+      const barberId = item.barberId;
       if (!acc[barberId]) {
         acc[barberId] = {
-          barber: app.barber,
+          barber: item.barber,
           totalEarnings: 0,
           appointmentsCount: 0,
           services: [],
         };
       }
 
-      // Add price to earnings (fallback to service price if historical price is missing somehow)
-      acc[barberId].totalEarnings += (app.price || app.service.price || 0);
-      acc[barberId].appointmentsCount += 1;
-      
-      // Keep track of services performed
-      acc[barberId].services.push({
-        id: app.id,
-        name: app.service.name,
-        price: app.price || app.service.price || 0,
-        time: app.startTime,
-        customerName: app.customerName,
-      });
+      const isManual = 'amount' in item;
+
+      if (isManual) {
+        // Handle ManualIncome
+        const manual = item as typeof manualIncomes[0];
+        acc[barberId].totalEarnings += manual.amount;
+        acc[barberId].appointmentsCount += 1;
+        
+        acc[barberId].services.push({
+          id: manual.id,
+          name: manual.service?.name || manual.description || 'Ingreso Manual',
+          price: manual.amount,
+          time: '-', // No time for manual
+          customerName: 'Cliente Sin Turno',
+          isManual: true,
+          date: manual.date
+        });
+      } else {
+        // Handle Appointment
+        const app = item as typeof appointments[0];
+        acc[barberId].totalEarnings += (app.price || app.service.price || 0);
+        acc[barberId].appointmentsCount += 1;
+        
+        acc[barberId].services.push({
+          id: app.id,
+          name: app.service.name,
+          price: app.price || app.service.price || 0,
+          time: app.startTime,
+          customerName: app.customerName,
+          isManual: false,
+          date: app.date
+        });
+      }
 
       return acc;
     }, {} as Record<string, any>);
