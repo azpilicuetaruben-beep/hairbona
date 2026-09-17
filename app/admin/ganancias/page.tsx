@@ -166,6 +166,24 @@ export default function GananciasAdmin() {
     });
   };
 
+  const handleDeleteManual = async (id: string) => {
+    if (!confirm('¿Estás seguro de que querés eliminar este ingreso manual? Esta acción no se puede deshacer.')) return;
+    
+    try {
+      const res = await fetch(`/api/admin/manual-income/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchEarnings();
+      } else {
+        alert('Error al eliminar el ingreso.');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error de conexión');
+    }
+  };
+
   const totalEarnings = earnings.reduce((sum, barber) => sum + barber.totalEarnings, 0);
   const totalAppointments = earnings.reduce((sum, barber) => sum + barber.appointmentsCount, 0);
 
@@ -306,7 +324,18 @@ export default function GananciasAdmin() {
                           {service.time !== '-' ? `(${service.time})` : ''} - {service.customerName}
                         </p>
                       </div>
-                      <p className="text-gold-400 font-semibold">{formatMoney(service.price)}</p>
+                      <div className="flex items-center gap-4">
+                        <p className="text-gold-400 font-semibold">{formatMoney(service.price)}</p>
+                        {service.isManual && (
+                          <button 
+                            onClick={() => handleDeleteManual(service.id)}
+                            className="text-red-500 hover:text-red-400 p-1 rounded-md hover:bg-red-500/10 transition-colors"
+                            title="Eliminar ingreso"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
