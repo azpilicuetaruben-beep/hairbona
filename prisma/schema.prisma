@@ -41,6 +41,7 @@ model Appointment {
   startTime     String   // HH:mm
   endTime       String   // HH:mm
   status        String   @default("confirmed") // confirmed, completed, cancelled
+  price         Float?   // Historial del precio cobrado
   serviceId     String
   service       Service  @relation(fields: [serviceId], references: [id])
   barberId      String

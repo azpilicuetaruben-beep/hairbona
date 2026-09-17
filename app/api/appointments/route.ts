@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
         endTime,
         serviceId,
         barberId,
+        price: service.price, // Guardar precio histórico
         status: 'confirmed',
       },
       include: {
