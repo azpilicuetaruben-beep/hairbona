@@ -93,8 +93,8 @@ export default function GananciasAdmin() {
   const fetchFormOptions = async () => {
     try {
       const [barbersRes, servicesRes] = await Promise.all([
-        fetch('/api/admin/barbers'),
-        fetch('/api/admin/services')
+        fetch('/api/barbers'),
+        fetch('/api/services')
       ]);
       const barbersData = await barbersRes.json();
       const servicesData = await servicesRes.json();
