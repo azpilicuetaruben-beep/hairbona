@@ -19,12 +19,12 @@ interface Barber {
 }
 
 const serviceIcons: Record<string, string> = {
-  'Corte de Pelo': '✂️',
-  'Perfilado de Cejas': '🖌️',
-  'Corte + Barba': '💈',
-  'Barba': '🧔',
-  'Shaving Tradicional': '🪒',
-  'Color': '🎨',
+  'Corte de Pelo': '/icons/corte.jpg',
+  'Perfilado de Cejas': '/icons/cejas.jpg',
+  'Corte + Barba': '/icons/maquina.jpg',
+  'Barba': '/icons/barba.jpg',
+  'Shaving Tradicional': '/icons/shaving.jpg',
+  'Color': '/icons/color.jpg',
 };
 
 const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -261,7 +261,11 @@ function BookingContent() {
                   className="w-full glass rounded-xl p-5 text-left hover:glow-gold transition-all duration-300 hover:-translate-y-0.5 group"
                 >
                   <div className="flex items-center gap-4">
-                    <span className="text-2xl">{serviceIcons[service.name] || '💈'}</span>
+                    <img 
+                      src={serviceIcons[service.name] || '/icons/corte.jpg'} 
+                      alt={service.name} 
+                      className="w-10 h-10 object-cover rounded-lg border border-gold-500/30 group-hover:border-gold-400 transition-colors"
+                    />
                     <div className="flex-1">
                       <h3 className="text-white font-semibold group-hover:text-gold-400 transition-colors">
                         {service.name}
@@ -306,7 +310,11 @@ function BookingContent() {
             </button>
 
             <div className="glass rounded-xl p-4 mb-6 flex items-center gap-3">
-              <span className="text-xl">{serviceIcons[selectedService?.name || ''] || '💈'}</span>
+              <img 
+                src={serviceIcons[selectedService?.name || ''] || '/icons/corte.jpg'} 
+                alt="Service icon" 
+                className="w-8 h-8 object-cover rounded border border-gold-500/30"
+              />
               <div>
                 <p className="text-white font-medium">{selectedService?.name}</p>
                 <p className="text-dark-500 text-xs">{selectedService?.duration} min</p>
@@ -357,7 +365,11 @@ function BookingContent() {
 
             <div className="glass rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex items-center gap-3">
-                <span className="text-xl">{serviceIcons[selectedService?.name || ''] || '💈'}</span>
+                <img 
+                  src={serviceIcons[selectedService?.name || ''] || '/icons/corte.jpg'} 
+                  alt="Service icon" 
+                  className="w-8 h-8 object-cover rounded border border-gold-500/30"
+                />
                 <div>
                   <p className="text-white font-medium">{selectedService?.name}</p>
                   <p className="text-dark-500 text-xs">{selectedService?.duration} min</p>
@@ -477,7 +489,11 @@ function BookingContent() {
             <div className="glass rounded-xl p-4 mb-6 space-y-3">
               <div className="flex items-center justify-between border-b border-dark-800 pb-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{serviceIcons[selectedService?.name || ''] || '💈'}</span>
+                  <img 
+                    src={serviceIcons[selectedService?.name || ''] || '/icons/corte.jpg'} 
+                    alt="Service icon" 
+                    className="w-8 h-8 object-cover rounded border border-gold-500/30"
+                  />
                   <span className="text-white font-medium">{selectedService?.name}</span>
                 </div>
                 <div className="text-dark-400 text-sm">{selectedService?.duration} min</div>

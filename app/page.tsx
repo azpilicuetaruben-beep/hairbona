@@ -38,12 +38,12 @@ interface Review {
 }
 
 const serviceIcons: Record<string, string> = {
-  'Corte de Pelo': '✂️',
-  'Perfilado de Cejas': '🖌️',
-  'Corte + Barba': '💈',
-  'Barba': '🧔',
-  'Shaving Tradicional': '🪒',
-  'Color': '🎨',
+  'Corte de Pelo': '/icons/corte.jpg',
+  'Perfilado de Cejas': '/icons/cejas.jpg',
+  'Corte + Barba': '/icons/maquina.jpg',
+  'Barba': '/icons/barba.jpg',
+  'Shaving Tradicional': '/icons/shaving.jpg',
+  'Color': '/icons/color.jpg',
 };
 
 const INSTAGRAM_URL = 'https://www.instagram.com/hairbona_fr?stkn=MTR4aHp6Zjg0bzdoMg==';
@@ -224,7 +224,13 @@ export default function HomePage() {
             {services.map((service) => (
               <Link key={service.id} href={`/reservar?service=${service.id}`} className="group glass rounded-2xl p-5 sm:p-6 hover:glow-gold transition-all duration-500 hover:-translate-y-1 cursor-pointer">
                 <div className="flex items-start gap-3 sm:gap-4">
-                  <div className="text-2xl sm:text-3xl flex-shrink-0 mt-1">{serviceIcons[service.name] || '💈'}</div>
+                  <div className="flex-shrink-0 mt-1">
+                    <img 
+                      src={serviceIcons[service.name] || '/icons/corte.jpg'} 
+                      alt={service.name} 
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-gold-500/30 group-hover:border-gold-400 transition-colors"
+                    />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-white text-base sm:text-lg font-heading font-semibold group-hover:text-gold-400 transition-colors">{service.name}</h3>
                     <p className="text-dark-400 text-sm mt-1 leading-relaxed line-clamp-2">{service.description}</p>
