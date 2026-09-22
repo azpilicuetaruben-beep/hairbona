@@ -11,6 +11,7 @@ model Service {
   id           String        @id @default(cuid())
   name         String
   description  String?
+  image        String?       // image path for the service
   duration     Int           // duration in minutes
   price        Float?
   order        Int           @default(0)

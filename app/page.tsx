@@ -9,6 +9,7 @@ interface Service {
   id: string;
   name: string;
   description: string;
+  image: string | null;
   duration: number;
   price: number | null;
 }
@@ -38,14 +39,6 @@ interface Review {
   };
 }
 
-const serviceIcons: Record<string, string> = {
-  'Corte de Pelo': '/icons/corte.jpg',
-  'Perfilado de Cejas': '/icons/cejas.jpg',
-  'Corte + Barba': '/icons/maquina.jpg',
-  'Barba': '/icons/barba.jpg',
-  'Shaving Tradicional': '/icons/shaving.jpg',
-  'Color': '/icons/color.jpg',
-};
 
 const INSTAGRAM_URL = 'https://www.instagram.com/hairbona_fr?stkn=MTR4aHp6Zjg0bzdoMg==';
 
@@ -260,14 +253,16 @@ export default function HomePage() {
                 <div className="flex items-start gap-3 sm:gap-4">
                   <div className="flex-shrink-0 mt-1">
                     <img 
-                      src={serviceIcons[service.name] || '/icons/corte.jpg'} 
+                      src={service.image || '/icons/corte.jpg'} 
                       alt={service.name} 
                       className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-gold-500/30 group-hover:border-gold-400 transition-colors"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-white text-base sm:text-lg font-heading font-semibold group-hover:text-gold-400 transition-colors">{service.name}</h3>
-                    <p className="text-dark-400 text-sm mt-1 leading-relaxed line-clamp-2">{service.description}</p>
+                    {service.description && service.description.trim() !== '' && (
+                      <p className="text-dark-400 text-sm mt-1 leading-relaxed line-clamp-2">{service.description}</p>
+                    )}
                     {service.price && (
                       <div className="mt-3">
                         <span className="text-gold-400 text-lg sm:text-xl font-bold">${service.price.toLocaleString()}</span>
@@ -304,7 +299,9 @@ export default function HomePage() {
                 </div>
                 <div className="p-5 sm:p-6 relative -mt-10 z-10 flex flex-col flex-1">
                   <h3 className="text-xl sm:text-2xl font-heading font-bold text-gold-400 mb-2">{barber.name}</h3>
-                  <p className="text-dark-300 text-sm leading-relaxed mb-4 sm:mb-6 flex-1">{barber.description}</p>
+                  {barber.description && barber.description.trim() !== '' && (
+                    <p className="text-dark-300 text-sm leading-relaxed mb-4 sm:mb-6 flex-1">{barber.description}</p>
+                  )}
                   
                   {barber.whatsapp && (
                     <a 
