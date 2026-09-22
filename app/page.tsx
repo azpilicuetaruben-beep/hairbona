@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
+import WelcomeModal from '@/components/WelcomeModal';
 
 interface Service {
   id: string;
@@ -116,6 +117,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-dark-950">
+      <WelcomeModal />
       {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -139,21 +141,49 @@ export default function HomePage() {
             <Link href="/reservar" className="btn-gold text-dark-950 px-6 py-2.5 rounded-full text-sm font-semibold tracking-wide uppercase">
               Reservar Turno
             </Link>
+            {session ? (
+              <Link href="/perfil" className="flex items-center gap-2 group ml-2">
+                {session.user?.image ? (
+                  <img src={session.user.image} alt={session.user.name || ''} className="w-10 h-10 rounded-full border border-gold-500/50 group-hover:border-gold-400 transition-colors" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 border border-gold-500/50 group-hover:border-gold-400 transition-colors">
+                    {session.user?.name?.[0] || '?'}
+                  </div>
+                )}
+              </Link>
+            ) : (
+              <button onClick={() => signIn('google')} className="text-dark-300 hover:text-white transition-colors text-sm font-medium ml-2 border border-dark-700 px-4 py-2 rounded-full hover:bg-dark-800">
+                Entrar
+              </button>
+            )}
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden text-dark-300 hover:text-gold-400 transition-colors p-2"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          {/* Mobile menu and Profile */}
+          <div className="md:hidden flex items-center gap-4">
+            {session && (
+              <Link href="/perfil">
+                {session.user?.image ? (
+                  <img src={session.user.image} alt={session.user.name || ''} className="w-8 h-8 rounded-full border border-gold-500/50" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 border border-gold-500/50 text-xs">
+                    {session.user?.name?.[0] || '?'}
+                  </div>
+                )}
+              </Link>
+            )}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-dark-300 hover:text-gold-400 transition-colors p-2"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}

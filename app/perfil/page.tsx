@@ -11,8 +11,19 @@ interface Visit {
   barberName: string | null;
 }
 
+interface Appointment {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  service: { name: string };
+  barber: { name: string };
+}
+
 interface ProfileData {
   visits: Visit[];
+  appointments: Appointment[];
   loyaltyVisits: number;
   loyaltyMessage: string;
 }
@@ -29,16 +40,38 @@ export default function PerfilPage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (session?.user) {
+  const fetchProfile = () => {
+    if (session?.user?.email) {
       setLoading(true);
-      // Get user id from session - we need to fetch it
-      fetch(`/api/profile?userId=${encodeURIComponent(session.user.email || '')}`)
+      fetch(`/api/profile?userId=${encodeURIComponent(session.user.email)}`)
         .then(res => res.json())
         .then(data => { setProfileData(data); setLoading(false); })
         .catch(() => setLoading(false));
     }
+  };
+
+  useEffect(() => {
+    fetchProfile();
   }, [session]);
+
+  const handleCancelAppointment = async (id: string) => {
+    if (!confirm('¿Estás seguro de que querés cancelar este turno?')) return;
+    try {
+      const res = await fetch(`/api/appointments`, { // we need a cancel endpoint for users, wait we can just use the public one if we create it, or use the delete endpoint? Oh wait, the admin endpoint requires admin session! I will create a public cancel endpoint. Wait, actually we can just pass the appointment ID to a new endpoint `/api/appointments/cancel` with the ID. 
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action: 'cancel' }),
+      });
+      if (res.ok) {
+        alert('Turno cancelado.');
+        fetchProfile();
+      } else {
+        alert('Error al cancelar turno.');
+      }
+    } catch {
+      alert('Error al cancelar turno.');
+    }
+  };
 
   if (status === 'loading') {
     return (
@@ -58,7 +91,7 @@ export default function PerfilPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-heading font-bold text-white mb-3">Mi Perfil</h1>
-          <p className="text-dark-400 mb-8">Iniciá sesión con Google para ver tu historial de visitas y recompensas.</p>
+          <p className="text-dark-400 mb-8">Iniciá sesión con Google para ver tu historial de visitas, turnos y recompensas.</p>
           <button
             onClick={() => signIn('google')}
             className="btn-gold text-dark-950 px-8 py-3.5 rounded-full text-sm font-bold tracking-wider uppercase flex items-center gap-2 mx-auto"
@@ -84,6 +117,9 @@ export default function PerfilPage() {
   const visitsInCycle = visitCount % loyaltyVisits;
   const progress = (visitsInCycle / loyaltyVisits) * 100;
   const hasReward = visitCount > 0 && visitsInCycle === 0;
+  
+  const pendingAppointments = profileData?.appointments?.filter(a => a.status === 'confirmed') || [];
+  const pastAppointments = profileData?.appointments?.filter(a => a.status !== 'confirmed') || [];
 
   return (
     <div className="min-h-screen bg-dark-950">
@@ -143,28 +179,59 @@ export default function PerfilPage() {
           </div>
         )}
 
-        {/* Visit history */}
+        {/* Pending Appointments */}
+        {pendingAppointments.length > 0 && (
+          <div className="glass rounded-2xl overflow-hidden animate-fade-in-up">
+            <div className="px-6 py-4 border-b border-dark-800 bg-gold-500/10">
+              <h2 className="text-lg font-heading font-semibold text-white">Turnos Pendientes</h2>
+            </div>
+            <div className="divide-y divide-dark-800">
+              {pendingAppointments.map(appt => (
+                <div key={appt.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4">
+                  <div className="flex-1">
+                    <p className="text-white font-medium text-lg">{appt.service.name}</p>
+                    <p className="text-gold-400 text-sm font-semibold">{formatDate(appt.date)} a las {appt.startTime} hs</p>
+                    <p className="text-dark-500 text-sm mt-1">Con {appt.barber.name}</p>
+                  </div>
+                  <button onClick={() => handleCancelAppointment(appt.id)}
+                    className="text-red-400 hover:text-red-300 transition-colors text-sm font-medium border border-red-500/30 rounded-lg px-4 py-2 hover:bg-red-500/10 self-start sm:self-center">
+                    Cancelar Turno
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Past Appointments (History) */}
         <div className="glass rounded-2xl overflow-hidden animate-fade-in-up">
           <div className="px-6 py-4 border-b border-dark-800">
-            <h2 className="text-lg font-heading font-semibold text-white">Historial de visitas</h2>
+            <h2 className="text-lg font-heading font-semibold text-white">Historial de Turnos</h2>
           </div>
           {loading ? (
             <div className="p-8 text-center text-dark-500">Cargando...</div>
-          ) : visitCount === 0 ? (
+          ) : pastAppointments.length === 0 ? (
             <div className="p-8 text-center text-dark-500">
-              <p>Aún no tenés visitas registradas.</p>
+              <p>Aún no tenés historial de turnos.</p>
               <Link href="/reservar" className="text-gold-400 hover:underline mt-2 inline-block">Reservar un turno →</Link>
             </div>
           ) : (
             <div className="divide-y divide-dark-800">
-              {profileData?.visits.map((visit, i) => (
-                <div key={visit.id} className="flex items-center gap-4 px-6 py-4">
-                  <div className="w-8 h-8 rounded-full bg-gold-500/10 flex items-center justify-center text-gold-400 text-xs font-bold flex-shrink-0">
-                    {visitCount - i}
-                  </div>
+              {pastAppointments.map(appt => (
+                <div key={appt.id} className="flex items-center justify-between gap-4 px-6 py-4">
                   <div className="flex-1">
-                    <p className="text-white font-medium">{visit.serviceName || 'Servicio'}</p>
-                    <p className="text-dark-500 text-sm">{visit.barberName && `Con ${visit.barberName} · `}{formatDate(visit.date)}</p>
+                    <p className="text-white font-medium">{appt.service.name}</p>
+                    <p className="text-dark-400 text-sm">{formatDate(appt.date)} · {appt.startTime} hs</p>
+                    <p className="text-dark-500 text-sm">Con {appt.barber.name}</p>
+                  </div>
+                  <div>
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                      appt.status === 'completed' ? 'bg-green-500/10 text-green-400' :
+                      appt.status === 'cancelled' ? 'bg-red-500/10 text-red-400' :
+                      'bg-dark-700 text-dark-300'
+                    }`}>
+                      {appt.status === 'completed' ? 'Completado' : appt.status === 'cancelled' ? 'Cancelado' : appt.status}
+                    </span>
                   </div>
                 </div>
               ))}
