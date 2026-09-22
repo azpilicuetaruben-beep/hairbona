@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 interface Service {
   id: string;
@@ -36,6 +37,7 @@ const monthNames = [
 function BookingContent() {
   const searchParams = useSearchParams();
   const preselectedService = searchParams.get('service');
+  const { data: session } = useSession();
 
   const [step, setStep] = useState(1); // 1: Service, 2: Barber, 3: Date&Time, 4: Info
   const [services, setServices] = useState<Service[]>([]);
@@ -117,6 +119,7 @@ function BookingContent() {
         body: JSON.stringify({
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim(),
+          customerEmail: session?.user?.email || null,
           date: selectedDate,
           startTime: selectedTime,
           serviceId: selectedService!.id,

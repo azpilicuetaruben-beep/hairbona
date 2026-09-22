@@ -5,7 +5,7 @@ import { sendNotificationEmail } from '@/lib/email';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerName, customerPhone, date, startTime, serviceId, barberId } = body;
+    const { customerName, customerPhone, customerEmail, date, startTime, serviceId, barberId } = body;
 
     if (!customerName || !customerPhone || !date || !startTime || !serviceId || !barberId) {
       return NextResponse.json(
@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
     const existingPending = await prisma.appointment.findFirst({
       where: {
         OR: [
+          ...(customerEmail ? [{ customerEmail }] : []),
           { customerName },
           { customerPhone }
         ],
@@ -88,6 +89,7 @@ export async function POST(request: NextRequest) {
       data: {
         customerName,
         customerPhone,
+        customerEmail,
         date,
         startTime,
         endTime,

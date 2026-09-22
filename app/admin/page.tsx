@@ -44,21 +44,11 @@ export default function AdminDashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [view, setView] = useState<'day' | 'week'>('day');
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
     try {
-      let url = '/api/admin/appointments';
-      if (view === 'day') {
-        url += `?date=${selectedDate}`;
-      } else {
-        const from = selectedDate;
-        const toDate = new Date(selectedDate);
-        toDate.setDate(toDate.getDate() + 6);
-        const to = toDate.toISOString().split('T')[0];
-        url += `?from=${from}&to=${to}`;
-      }
+      const url = `/api/admin/appointments?from=${selectedDate}`;
 
       const res = await fetch(url);
       if (res.status === 401) {
@@ -71,7 +61,7 @@ export default function AdminDashboard() {
       console.error('Error fetching appointments');
     }
     setLoading(false);
-  }, [selectedDate, view, router]);
+  }, [selectedDate, router]);
 
   useEffect(() => {
     fetchAppointments();
@@ -130,7 +120,7 @@ export default function AdminDashboard() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => changeDate(view === 'day' ? -1 : -7)}
+              onClick={() => changeDate(-7)}
               className="w-9 h-9 rounded-lg glass flex items-center justify-center text-dark-400 hover:text-white transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +129,7 @@ export default function AdminDashboard() {
             </button>
             <div>
               <h1 className="text-xl sm:text-2xl font-heading font-bold text-white">
-                {formatDisplayDate(selectedDate)}
+                Turnos desde: {formatDisplayDate(selectedDate)}
               </h1>
               <button
                 onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
@@ -149,35 +139,12 @@ export default function AdminDashboard() {
               </button>
             </div>
             <button
-              onClick={() => changeDate(view === 'day' ? 1 : 7)}
+              onClick={() => changeDate(7)}
               className="w-9 h-9 rounded-lg glass flex items-center justify-center text-dark-400 hover:text-white transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setView('day')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                view === 'day'
-                  ? 'bg-gold-500 text-dark-950'
-                  : 'glass text-dark-400 hover:text-white'
-              }`}
-            >
-              Día
-            </button>
-            <button
-              onClick={() => setView('week')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                view === 'week'
-                  ? 'bg-gold-500 text-dark-950'
-                  : 'glass text-dark-400 hover:text-white'
-              }`}
-            >
-              Semana
             </button>
           </div>
         </div>
@@ -227,9 +194,15 @@ export default function AdminDashboard() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                   {/* Time */}
-                  <div className="flex items-center gap-3 sm:w-32 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center">
-                      <span className="text-gold-400 text-xs font-bold">{apt.startTime}</span>
+                  <div className="flex items-center gap-3 sm:w-48 flex-shrink-0">
+                    <div className="flex flex-col items-center justify-center bg-gold-500/10 rounded-lg px-3 py-2 text-center border border-gold-500/20">
+                      <span className="text-gold-400 text-[10px] uppercase font-bold tracking-wider leading-none mb-1">
+                        {(() => {
+                          const [y, m, d] = apt.date.split('-');
+                          return `${d}/${m}`;
+                        })()}
+                      </span>
+                      <span className="text-gold-400 text-sm font-bold leading-none">{apt.startTime}</span>
                     </div>
                     <div className="sm:hidden">
                       <p className="text-white font-semibold">{apt.customerName}</p>
@@ -309,12 +282,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Week view: show date */}
-                {view === 'week' && (
-                  <div className="mt-2 pt-2 border-t border-dark-800/50">
-                    <span className="text-dark-500 text-xs">{formatDisplayDate(apt.date)}</span>
-                  </div>
-                )}
+
               </div>
             ))}
           </div>

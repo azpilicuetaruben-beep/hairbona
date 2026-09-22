@@ -34,21 +34,28 @@ export async function PATCH(
         include: { accounts: true },
       });
       // Try to find a user whose session/account corresponds to this appointment
-      // We match via customerPhone stored in appointment - look up any user visit record
       // For now, we track by appointmentId to avoid duplicate visits
       const existingVisit = await prisma.visit.findFirst({
         where: { appointmentId: id },
       });
       if (!existingVisit) {
-        // Try finding user by matching name (best effort)
-        const matchedUser = await prisma.user.findFirst({
-          where: { 
-            name: { 
-              contains: appointment.customerName.split(' ')[0],
-              mode: 'insensitive' 
-            } 
-          },
-        });
+        // Try finding user by matching email first
+        let matchedUser = null;
+        if (appointment.customerEmail) {
+          matchedUser = await prisma.user.findUnique({
+            where: { email: appointment.customerEmail }
+          });
+        }
+        
+        // Fallback to matching by exact name if no email is found (legacy appointments)
+        if (!matchedUser) {
+          matchedUser = await prisma.user.findFirst({
+            where: { 
+              name: { equals: appointment.customerName, mode: 'insensitive' }
+            }
+          });
+        }
+
         if (matchedUser) {
           await prisma.visit.create({
             data: {

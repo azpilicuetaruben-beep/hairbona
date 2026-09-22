@@ -20,7 +20,12 @@ export async function GET(request: Request) {
   });
 
   const appointments = await prisma.appointment.findMany({
-    where: { customerName: user.name || '' }, // Or maybe search by phone? The user doesn't have phone in User table. But we will fetch by customerName for now. Wait, let's fetch by email if we can? We don't store email in appointment. Let's fetch by name since Google gives us name.
+    where: { 
+      OR: [
+        { customerEmail: user.email },
+        { customerName: user.name || '' }
+      ]
+    },
     orderBy: { date: 'desc' },
     include: { service: true, barber: true },
   });

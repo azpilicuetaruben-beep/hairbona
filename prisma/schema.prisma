@@ -39,6 +39,7 @@ model Appointment {
   id            String   @id @default(cuid())
   customerName  String
   customerPhone String
+  customerEmail String?
   date          String   // YYYY-MM-DD
   startTime     String   // HH:mm
   endTime       String   // HH:mm

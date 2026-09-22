@@ -18,8 +18,11 @@ export async function GET(request: NextRequest) {
 
     if (date) {
       where.date = date;
-    } else if (from && to) {
-      where.date = { gte: from, lte: to };
+    } else if (from) {
+      where.date = {
+        gte: from,
+        ...(to ? { lte: to } : {}),
+      };
     }
 
     const appointments = await prisma.appointment.findMany({
