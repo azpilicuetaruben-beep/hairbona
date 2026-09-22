@@ -17,6 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Barberos', path: '/admin/barberos' },
     { name: 'Servicios', path: '/admin/servicios' },
     { name: 'Ganancias', path: '/admin/ganancias' },
+    { name: 'Egresos', path: '/admin/egresos' },
     { name: 'Galería', path: '/admin/galeria' },
     { name: 'Reseñas', path: '/admin/resenas' },
     { name: 'Config', path: '/admin/configuracion' },

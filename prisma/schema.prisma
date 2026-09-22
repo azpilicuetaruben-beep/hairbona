@@ -134,6 +134,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   reviews       Review[]
+  visits        Visit[]
 }
 
 model VerificationToken {
@@ -168,4 +169,28 @@ model ManualIncome {
 
   @@index([date])
   @@index([barberId])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  amount      Float
+  description String
+  date        String   // YYYY-MM-DD
+  createdAt   DateTime @default(now())
+
+  @@index([date])
+}
+
+model Visit {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointmentId String?
+  date          String      // YYYY-MM-DD
+  serviceName   String?
+  barberName    String?
+  createdAt     DateTime    @default(now())
+
+  @@index([userId])
+  @@index([date])
 }

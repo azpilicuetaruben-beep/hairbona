@@ -105,6 +105,34 @@ function GlobalConfigForm() {
         />
       </div>
 
+      {/* Loyalty Program */}
+      <div className="border border-dark-700 rounded-xl p-5 space-y-4">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <span>🏆</span> Programa de Fidelidad
+        </h3>
+        <div>
+          <label className="block text-sm text-dark-300 mb-1">Visitas necesarias para ganar recompensa</label>
+          <input 
+            type="number"
+            min="1"
+            max="100"
+            value={config.loyaltyVisits || '10'} 
+            onChange={(e) => setConfig({...config, loyaltyVisits: e.target.value})}
+            className="w-full bg-dark-900 border border-dark-700 rounded-xl px-4 py-2 text-white"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-dark-300 mb-1">Mensaje de recompensa (lo ve el cliente cuando la gana)</label>
+          <textarea 
+            value={config.loyaltyMessage || ''} 
+            onChange={(e) => setConfig({...config, loyaltyMessage: e.target.value})}
+            className="w-full bg-dark-900 border border-dark-700 rounded-xl px-4 py-2 text-white resize-none"
+            rows={3}
+            placeholder="¡Felicitaciones! Ganaste una recompensa especial. Mostrá este mensaje en tu próxima visita."
+          />
+        </div>
+      </div>
+
       {/* Hero Image Upload */}
       <div>
         <label className="block text-sm text-dark-300 mb-2">Imagen de Fondo (Hero)</label>

@@ -23,8 +23,45 @@ export async function PATCH(
     const appointment = await prisma.appointment.update({
       where: { id },
       data: { status },
-      include: { service: true },
+      include: { service: true, barber: true },
     });
+
+    // Auto-register visit when completing an appointment
+    if (status === 'completed') {
+      // Find user by phone number matching customerPhone
+      const userByPhone = await prisma.user.findFirst({
+        where: { email: { not: null } },
+        include: { accounts: true },
+      });
+      // Try to find a user whose session/account corresponds to this appointment
+      // We match via customerPhone stored in appointment - look up any user visit record
+      // For now, we track by appointmentId to avoid duplicate visits
+      const existingVisit = await prisma.visit.findFirst({
+        where: { appointmentId: id },
+      });
+      if (!existingVisit) {
+        // Try finding user by matching name (best effort)
+        const matchedUser = await prisma.user.findFirst({
+          where: { 
+            name: { 
+              contains: appointment.customerName.split(' ')[0],
+              mode: 'insensitive' 
+            } 
+          },
+        });
+        if (matchedUser) {
+          await prisma.visit.create({
+            data: {
+              userId: matchedUser.id,
+              appointmentId: id,
+              date: appointment.date,
+              serviceName: appointment.service.name,
+              barberName: appointment.barber.name,
+            },
+          });
+        }
+      }
+    }
 
     return NextResponse.json(appointment);
   } catch (error) {

@@ -12,7 +12,9 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(barbers);
+    const response = NextResponse.json(barbers);
+    response.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    return response;
   } catch (error) {
     console.error('Error fetching barbers:', error);
     return NextResponse.json(

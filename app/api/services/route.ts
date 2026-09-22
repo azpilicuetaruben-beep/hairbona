@@ -7,7 +7,9 @@ export async function GET() {
       where: { active: true },
       orderBy: { order: 'asc' },
     });
-    return NextResponse.json(services);
+    const response = NextResponse.json(services);
+    response.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    return response;
   } catch (error) {
     console.error('Error fetching services:', error);
     return NextResponse.json({ error: 'Error fetching services' }, { status: 500 });
