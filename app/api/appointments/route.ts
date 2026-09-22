@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
       where: {
         OR: [
           ...(customerEmail ? [{ customerEmail }] : []),
-          { customerName },
           { customerPhone }
         ],
         status: 'confirmed',

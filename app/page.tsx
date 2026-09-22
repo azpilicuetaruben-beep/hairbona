@@ -160,7 +160,7 @@ export default function HomePage() {
 
           {/* Mobile menu and Profile */}
           <div className="md:hidden flex items-center gap-4">
-            {session && (
+            {session ? (
               <Link href="/perfil">
                 {session.user?.image ? (
                   <img src={session.user.image} alt={session.user.name || ''} className="w-8 h-8 rounded-full border border-gold-500/50" />
@@ -170,6 +170,10 @@ export default function HomePage() {
                   </div>
                 )}
               </Link>
+            ) : (
+              <button onClick={() => signIn('google')} className="text-dark-300 hover:text-white transition-colors text-sm font-medium border border-dark-700 px-3 py-1.5 rounded-full hover:bg-dark-800">
+                Entrar
+              </button>
             )}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
