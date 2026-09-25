@@ -65,9 +65,10 @@ function BookingContent() {
   }).filter((d) => d.getDay() !== 0); // Filter out Sundays
 
   useEffect(() => {
+    const nocache = `?t=${Date.now()}`;
     Promise.all([
-      fetch('/api/services').then(res => res.json()),
-      fetch('/api/barbers').then(res => res.json())
+      fetch(`/api/services${nocache}`).then(res => res.json()),
+      fetch(`/api/barbers${nocache}`).then(res => res.json())
     ]).then(([servicesData, barbersData]) => {
       setServices(servicesData);
       setBarbers(barbersData);

@@ -81,13 +81,14 @@ export default function HomePage() {
   const [hoverRating, setHoverRating] = useState(0);
 
   useEffect(() => {
+    const nocache = `?t=${Date.now()}`;
     Promise.all([
-      fetch('/api/services').then(r => r.json()),
-      fetch('/api/barbers').then(r => r.json()),
-      fetch('/api/gallery').then(r => r.json()),
-      fetch('/api/config').then(r => r.json()),
-      fetch('/api/reviews').then(r => r.json()),
-      fetch('/api/products').then(r => r.json()),
+      fetch(`/api/services${nocache}`).then(r => r.json()),
+      fetch(`/api/barbers${nocache}`).then(r => r.json()),
+      fetch(`/api/gallery${nocache}`).then(r => r.json()),
+      fetch(`/api/config${nocache}`).then(r => r.json()),
+      fetch(`/api/reviews${nocache}`).then(r => r.json()),
+      fetch(`/api/products${nocache}`).then(r => r.json()),
     ]).then(([servicesData, barbersData, galleryData, configData, reviewsData, productsData]) => {
       setServices(servicesData);
       setBarbers(barbersData);
@@ -330,9 +331,9 @@ export default function HomePage() {
             <div className="mt-4 mx-auto w-20 h-0.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 stagger-children">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-5 stagger-children">
             {services.map((service) => (
-              <Link key={service.id} href={`/reservar?service=${service.id}`} className="group glass rounded-2xl p-5 sm:p-6 hover:glow-gold transition-all duration-500 hover:-translate-y-1 cursor-pointer">
+              <Link key={service.id} href={`/reservar?service=${service.id}`} className="group glass rounded-2xl p-5 sm:p-6 hover:glow-gold transition-all duration-500 hover:-translate-y-1 cursor-pointer w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.875rem)]">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <div className="flex-shrink-0 mt-1">
                     <img 
@@ -370,9 +371,9 @@ export default function HomePage() {
               <div className="mt-4 mx-auto w-20 h-0.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent"></div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
               {products.map((product) => (
-                <div key={product.id} className="glass rounded-3xl overflow-hidden flex flex-col group hover:-translate-y-2 transition-transform duration-500 relative">
+                <div key={product.id} className="glass rounded-3xl overflow-hidden flex flex-col group hover:-translate-y-2 transition-transform duration-500 relative w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.375rem)] lg:w-[calc(25%-1.5rem)]">
                   {product.stock <= 0 && (
                     <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full z-20 shadow-lg">
                       Agotado
@@ -429,9 +430,9 @@ export default function HomePage() {
             <div className="mt-4 mx-auto w-20 h-0.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
             {barbers.map((barber) => (
-              <div key={barber.id} className="glass rounded-3xl overflow-hidden flex flex-col group hover:-translate-y-2 transition-transform duration-500">
+              <div key={barber.id} className="glass rounded-3xl overflow-hidden flex flex-col group hover:-translate-y-2 transition-transform duration-500 w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.333%-1.375rem)]">
                 <div className="aspect-[4/5] relative overflow-hidden">
                   <img 
                     src={barber.photo || 'https://i.pravatar.cc/400'} 
@@ -476,13 +477,13 @@ export default function HomePage() {
             <div className="mt-4 mx-auto w-20 h-0.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent"></div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 p-2 sm:p-8 relative">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 p-2 sm:p-8 relative">
             {gallery.slice(0, 12).map((img, index) => {
               const rotation = (index % 2 === 0 ? 1 : -1) * (2 + (index % 5));
               return (
                 <div 
                   key={img.id}
-                  className="gallery-photo cursor-pointer relative aspect-square bg-dark-900 rounded-lg p-1.5 sm:p-2 border border-dark-800"
+                  className="gallery-photo cursor-pointer relative aspect-square bg-dark-900 rounded-lg p-1.5 sm:p-2 border border-dark-800 w-[calc(50%-0.375rem)] md:w-[calc(33.333%-0.5rem)] lg:w-[calc(25%-0.75rem)]"
                   style={{ transform: `rotate(${rotation}deg)` }}
                   onClick={() => setLightboxImg(img.url)}
                 >
@@ -608,9 +609,9 @@ export default function HomePage() {
               <p className="text-dark-600 text-sm mt-1">¡Sé el primero en contar tu experiencia!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
               {reviews.map((review) => (
-                <div key={review.id} className="glass p-5 sm:p-8 rounded-2xl relative">
+                <div key={review.id} className="glass p-5 sm:p-8 rounded-2xl relative w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
                   <div className="flex text-gold-400 mb-3 sm:mb-4">
                     {[...Array(5)].map((_, i) => (
                       <svg key={i} className={`w-4 h-4 sm:w-5 sm:h-5 ${i < review.rating ? 'text-gold-400' : 'text-dark-700'}`} fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>

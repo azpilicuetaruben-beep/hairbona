@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const barbers = await prisma.barber.findMany({
@@ -12,9 +14,7 @@ export async function GET() {
       },
     });
 
-    const response = NextResponse.json(barbers);
-    response.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-    return response;
+    return NextResponse.json(barbers);
   } catch (error) {
     console.error('Error fetching barbers:', error);
     return NextResponse.json(
