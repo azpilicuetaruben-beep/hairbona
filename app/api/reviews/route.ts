@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { sendNotificationEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +63,19 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    const emailSubject = `⭐ Nueva Reseña: ${user.name || 'Anónimo'}`;
+    const emailBody = `
+      <h2>¡Nueva reseña recibida!</h2>
+      <p><strong>Cliente:</strong> ${user.name || 'Anónimo'}</p>
+      <p><strong>Email:</strong> ${user.email}</p>
+      <p><strong>Calificación:</strong> ${rating} estrellas</p>
+      <p><strong>Reseña:</strong></p>
+      <blockquote style="font-style: italic; border-left: 4px solid #d4a012; padding-left: 10px;">
+        ${text.trim()}
+      </blockquote>
+    `;
+    sendNotificationEmail(emailSubject, emailBody);
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
