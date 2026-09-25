@@ -39,6 +39,20 @@ interface Review {
   };
 }
 
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  image: string | null;
+  stock: number;
+  price: number;
+}
+
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 
 const INSTAGRAM_URL = 'https://www.instagram.com/hairbona_fr?stkn=MTR4aHp6Zjg0bzdoMg==';
 
@@ -49,10 +63,15 @@ export default function HomePage() {
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [config, setConfig] = useState<Record<string, string>>({});
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+
+  // Cart state
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
 
   // Review form state
   const [reviewText, setReviewText] = useState('');
@@ -67,12 +86,14 @@ export default function HomePage() {
       fetch('/api/gallery').then(r => r.json()),
       fetch('/api/config').then(r => r.json()),
       fetch('/api/reviews').then(r => r.json()),
-    ]).then(([servicesData, barbersData, galleryData, configData, reviewsData]) => {
+      fetch('/api/products').then(r => r.json()),
+    ]).then(([servicesData, barbersData, galleryData, configData, reviewsData, productsData]) => {
       setServices(servicesData);
       setBarbers(barbersData);
       setGallery(galleryData);
       setConfig(configData);
       setReviews(reviewsData);
+      setProducts(productsData);
     }).catch(console.error);
 
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -83,6 +104,47 @@ export default function HomePage() {
   const heroImage = config['heroImage'] || '/images/hero_background.jpg';
   const heroSubtitle = config['heroSubtitle'] || 'Tu barbería de confianza. Estilo, precisión y atención personalizada en cada visita.';
   const whatsappNumber = config['whatsappNumber'] || '+5491100000000';
+
+  const addToCart = (product: Product) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === product.id);
+      if (existing) {
+        if (existing.quantity >= product.stock) {
+          alert('No hay más stock disponible de este producto.');
+          return prev;
+        }
+        return prev.map(item => item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+      }
+      if (product.stock <= 0) {
+        alert('Este producto está agotado.');
+        return prev;
+      }
+      return [...prev, { product, quantity: 1 }];
+    });
+    setCartOpen(true);
+  };
+
+  const updateCartQuantity = (productId: string, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.product.id === productId) {
+        const newQuantity = item.quantity + delta;
+        if (newQuantity <= 0) return null;
+        if (newQuantity > item.product.stock) return item;
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    }).filter(Boolean) as CartItem[]);
+  };
+
+  const cartTotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
+  const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const checkoutCart = () => {
+    if (cart.length === 0) return;
+    const text = `Hola buen día, me gustaría comprar lo siguiente:%0A%0A${cart.map(item => `- ${item.quantity}x ${item.product.name} ($${item.product.price})`).join('%0A')}%0A%0ATotal: $${cartTotal}`;
+    window.open(`https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${text}`, '_blank');
+  };
+
 
   const submitReview = async () => {
     if (!reviewText.trim()) return;
@@ -275,6 +337,66 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Products Section */}
+      {products.length > 0 && (
+        <section id="productos" className="py-16 sm:py-24 lg:py-32 relative z-10">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-dark-700 to-transparent"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10 sm:mb-16">
+              <span className="text-gold-500 text-sm font-semibold tracking-widest uppercase">Nuestra Tienda</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-white mt-2">Productos</h2>
+              <div className="mt-4 mx-auto w-20 h-0.5 bg-gradient-to-r from-transparent via-gold-500 to-transparent"></div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+              {products.map((product) => (
+                <div key={product.id} className="glass rounded-3xl overflow-hidden flex flex-col group hover:-translate-y-2 transition-transform duration-500 relative">
+                  {product.stock <= 0 && (
+                    <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full z-20 shadow-lg">
+                      Agotado
+                    </div>
+                  )}
+                  <div className="aspect-square relative overflow-hidden bg-dark-900 p-6 flex items-center justify-center">
+                    {product.image ? (
+                      <img 
+                        src={product.image} 
+                        alt={product.name} 
+                        className={`w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 ${product.stock <= 0 ? 'opacity-50 grayscale' : ''}`}
+                      />
+                    ) : (
+                      <div className="text-dark-600 text-sm">Sin imagen</div>
+                    )}
+                  </div>
+                  <div className="p-5 sm:p-6 flex flex-col flex-1 border-t border-dark-800">
+                    <h3 className="text-lg font-heading font-bold text-white mb-1 group-hover:text-gold-400 transition-colors">{product.name}</h3>
+                    {product.description && product.description.trim() !== '' && (
+                      <p className="text-dark-400 text-sm leading-relaxed mb-4 line-clamp-2 flex-1">{product.description}</p>
+                    )}
+                    
+                    <div className="flex items-center justify-between mt-auto pt-4">
+                      <span className="text-gold-400 text-xl font-bold">${product.price.toLocaleString()}</span>
+                      <button
+                        onClick={() => addToCart(product)}
+                        disabled={product.stock <= 0}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                          product.stock > 0 
+                            ? 'bg-gold-500/10 text-gold-400 hover:bg-gold-500 hover:text-dark-950' 
+                            : 'bg-dark-800 text-dark-500 cursor-not-allowed'
+                        }`}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Sobre Nosotros (Barberos) */}
       <section id="nosotros" className="py-16 sm:py-24 lg:py-32 relative z-10">
@@ -600,6 +722,105 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Cart Button */}
+      {cartItemCount > 0 && (
+        <button
+          onClick={() => setCartOpen(true)}
+          className="fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-40 bg-dark-900 border border-gold-500 text-white p-3 sm:p-4 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.3)] hover:scale-110 hover:shadow-[0_0_25px_rgba(234,179,8,0.5)] transition-all duration-300 flex items-center justify-center group"
+        >
+          <div className="absolute -top-2 -right-2 bg-gold-500 text-dark-950 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center animate-bounce-short">
+            {cartItemCount}
+          </div>
+          <svg className="w-6 h-6 sm:w-7 sm:h-7 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </button>
+      )}
+
+      {/* Cart Drawer */}
+      {cartOpen && (
+        <div className="fixed inset-0 z-[60] flex justify-end">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+            onClick={() => setCartOpen(false)}
+          ></div>
+          <div className="relative w-full max-w-md bg-dark-950 h-full shadow-2xl flex flex-col border-l border-dark-800 animate-slide-left">
+            <div className="p-6 border-b border-dark-800 flex items-center justify-between bg-dark-900/50">
+              <h2 className="text-xl font-heading font-bold text-white flex items-center gap-2">
+                <svg className="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                Tu Carrito
+              </h2>
+              <button onClick={() => setCartOpen(false)} className="text-dark-400 hover:text-white p-2 rounded-full hover:bg-dark-800 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              {cart.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
+                  <svg className="w-16 h-16 text-dark-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <p className="text-dark-300">Tu carrito está vacío</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {cart.map((item) => (
+                    <div key={item.product.id} className="flex gap-4 bg-dark-900/30 p-3 rounded-2xl border border-dark-800/50">
+                      <div className="w-20 h-20 bg-dark-900 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center p-2 border border-dark-800">
+                        {item.product.image ? (
+                          <img src={item.product.image} alt={item.product.name} className="w-full h-full object-contain" />
+                        ) : (
+                          <span className="text-xs text-dark-600">Sin foto</span>
+                        )}
+                      </div>
+                      <div className="flex-1 flex flex-col justify-between py-1">
+                        <div>
+                          <h4 className="text-white font-medium text-sm line-clamp-1">{item.product.name}</h4>
+                          <span className="text-gold-400 font-bold text-sm">${item.product.price.toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 bg-dark-900 rounded-lg px-2 py-1 border border-dark-800">
+                            <button 
+                              onClick={() => updateCartQuantity(item.product.id, -1)}
+                              className="text-dark-400 hover:text-white px-1"
+                            >-</button>
+                            <span className="text-white text-sm font-medium w-4 text-center">{item.quantity}</span>
+                            <button 
+                              onClick={() => updateCartQuantity(item.product.id, 1)}
+                              disabled={item.quantity >= item.product.stock}
+                              className="text-dark-400 hover:text-white px-1 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >+</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="p-6 border-t border-dark-800 bg-dark-900/80 backdrop-blur-md">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-dark-300">Total a pagar</span>
+                  <span className="text-2xl font-bold text-gold-400">${cartTotal.toLocaleString()}</span>
+                </div>
+                <button 
+                  onClick={checkoutCart}
+                  className="w-full btn-gold text-dark-950 py-4 rounded-xl text-sm font-bold tracking-wider uppercase flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                  Confirmar Pedido por WhatsApp
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
