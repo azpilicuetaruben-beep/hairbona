@@ -33,6 +33,7 @@ interface Review {
   rating: number;
   text: string;
   createdAt: string;
+  userId: string;
   user: {
     name: string | null;
     image: string | null;
@@ -168,6 +169,20 @@ export default function HomePage() {
       alert('Error al enviar la reseña');
     }
     setSubmittingReview(false);
+  };
+
+  const deleteReview = async (id: string) => {
+    if (!confirm('¿Seguro que deseas borrar tu reseña?')) return;
+    try {
+      const res = await fetch(`/api/reviews/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setReviews(reviews.filter(r => r.id !== id));
+      } else {
+        alert('Error al borrar la reseña');
+      }
+    } catch {
+      alert('Error al borrar la reseña');
+    }
   };
 
   return (
@@ -596,18 +611,29 @@ export default function HomePage() {
                     ))}
                   </div>
                   <p className="text-dark-300 italic mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">&ldquo;{review.text}&rdquo;</p>
-                  <div className="flex items-center gap-3">
-                    {review.user.image ? (
-                      <img src={review.user.image} alt={review.user.name || ''} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dark-700" />
-                    ) : (
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-dark-700 flex items-center justify-center">
-                        <span className="text-dark-400 font-bold">{(review.user.name || '?')[0]}</span>
+                  <div className="flex items-center gap-3 justify-between">
+                    <div className="flex items-center gap-3">
+                      {review.user.image ? (
+                        <img src={review.user.image} alt={review.user.name || ''} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dark-700" />
+                      ) : (
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-dark-700 flex items-center justify-center">
+                          <span className="text-dark-400 font-bold">{(review.user.name || '?')[0]}</span>
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-white font-medium text-sm">{review.user.name || 'Anónimo'}</span>
+                        <p className="text-dark-500 text-xs mt-0.5">{new Date(review.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                       </div>
-                    )}
-                    <div>
-                      <span className="text-white font-medium text-sm">{review.user.name || 'Anónimo'}</span>
-                      <p className="text-dark-500 text-xs mt-0.5">{new Date(review.createdAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                     </div>
+                    {session?.user && (session.user as any).id === review.userId && (
+                      <button
+                        onClick={() => deleteReview(review.id)}
+                        className="text-dark-600 hover:text-red-400 p-2 rounded-full hover:bg-red-500/10 transition-colors"
+                        title="Borrar mi reseña"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
