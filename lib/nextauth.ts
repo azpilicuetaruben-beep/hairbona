@@ -29,8 +29,5 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  pages: {
-    signIn: '/login-google',
-  },
   secret: process.env.NEXTAUTH_SECRET || 'hairbona-secret-key-change-in-production',
 };

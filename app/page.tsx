@@ -204,6 +204,9 @@ export default function HomePage() {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6 lg:gap-8">
             <a href="#servicios" className="text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Servicios</a>
+            {products.length > 0 && (
+              <a href="#productos" className="text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Productos</a>
+            )}
             <a href="#nosotros" className="text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Nosotros</a>
             <a href="#galeria" className="text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Galería</a>
             <a href="#resenas" className="text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Reseñas</a>
@@ -264,6 +267,9 @@ export default function HomePage() {
         {menuOpen && (
           <div className="md:hidden glass mt-2 mx-4 rounded-2xl p-4 animate-fade-in">
             <a href="#servicios" onClick={() => setMenuOpen(false)} className="block py-3 text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Servicios</a>
+            {products.length > 0 && (
+              <a href="#productos" onClick={() => setMenuOpen(false)} className="block py-3 text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Productos</a>
+            )}
             <a href="#nosotros" onClick={() => setMenuOpen(false)} className="block py-3 text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Nosotros</a>
             <a href="#galeria" onClick={() => setMenuOpen(false)} className="block py-3 text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Galería</a>
             <a href="#resenas" onClick={() => setMenuOpen(false)} className="block py-3 text-dark-300 hover:text-gold-400 transition-colors text-sm font-medium tracking-wide uppercase">Reseñas</a>
