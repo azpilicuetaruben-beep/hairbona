@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
         ${text.trim()}
       </blockquote>
     `;
-    sendNotificationEmail(emailSubject, emailBody);
+    await sendNotificationEmail(emailSubject, emailBody);
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {

@@ -115,8 +115,8 @@ export async function POST(request: NextRequest) {
       <p><strong>Servicio:</strong> ${appointment.service.name}</p>
       <p><strong>Barbero:</strong> ${appointment.barber.name}</p>
     `;
-    // We do not await this to avoid blocking the response
-    sendNotificationEmail(emailSubject, emailBody);
+    // We await this to avoid Vercel killing the process before the email is sent
+    await sendNotificationEmail(emailSubject, emailBody);
 
     return NextResponse.json(appointment, { status: 201 });
   } catch (error) {
@@ -153,7 +153,7 @@ export async function PUT(request: NextRequest) {
       <p><strong>Servicio:</strong> ${appointment.service.name}</p>
       <p><strong>Barbero:</strong> ${appointment.barber.name}</p>
     `;
-    sendNotificationEmail(emailSubject, emailBody);
+    await sendNotificationEmail(emailSubject, emailBody);
 
     return NextResponse.json(appointment);
   } catch (error) {
