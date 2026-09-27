@@ -321,7 +321,7 @@ export default function ConfiguracionPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {[1, 2, 3, 4, 5, 6].map((day) => {
+              {[1, 2, 3, 4, 5, 6, 0].map((day) => {
                 const dayRules = rulesByDay[day] || [];
                 return (
                   <div key={day} className="glass rounded-xl p-4 flex items-center justify-between">
@@ -362,11 +362,7 @@ export default function ConfiguracionPage() {
                 );
               })}
 
-              {/* Sunday */}
-              <div className="glass rounded-xl p-4 flex items-center gap-3 opacity-50">
-                <span className="text-white font-medium w-24">{dayNames[0]}</span>
-                <span className="text-dark-500 text-sm">Cerrado</span>
-              </div>
+
             </div>
           )}
         </section>

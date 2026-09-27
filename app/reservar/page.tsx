@@ -62,7 +62,7 @@ function BookingContent() {
     const d = new Date();
     d.setDate(d.getDate() + i);
     return d;
-  }).filter((d) => d.getDay() !== 0); // Filter out Sundays
+  }); // Allow all days including Sundays
 
   useEffect(() => {
     const nocache = `?t=${Date.now()}`;
