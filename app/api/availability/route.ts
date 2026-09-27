@@ -103,10 +103,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Check if date is in the past
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const selectedDate = new Date(date + 'T00:00:00');
+    // Check if date is in the past (using Argentina timezone)
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const [year, month, day] = date.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day);
 
     if (selectedDate < today) {
       return NextResponse.json([]);
@@ -114,7 +116,6 @@ export async function GET(request: NextRequest) {
 
     // If it's today, filter out past time slots
     if (selectedDate.getTime() === today.getTime()) {
-      const now = new Date();
       const currentTime = now.getHours() * 60 + now.getMinutes();
       const filteredSlots = availableSlots.filter((slot) => {
         const [h, m] = slot.split(':').map(Number);
