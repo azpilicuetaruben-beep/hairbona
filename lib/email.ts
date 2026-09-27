@@ -5,8 +5,8 @@ const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 // The email address that will SEND the notifications (Must be verified in Resend, usually onboarding@resend.dev for testing or a custom domain)
 const FROM_EMAIL = 'onboarding@resend.dev'; 
-// The email address that will RECEIVE the notifications (The barber/owner)
-const TO_EMAIL = process.env.OWNER_EMAIL || 'azpilicuetaruben@gmail.com'; 
+// Force emails to always go to azpilicuetaruben@gmail.com as requested
+const TO_EMAIL = 'azpilicuetaruben@gmail.com'; 
 
 export async function sendNotificationEmail(subject: string, htmlBody: string) {
   if (!resend) {

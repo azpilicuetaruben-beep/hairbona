@@ -65,16 +65,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const emailSubject = `⭐ Nueva Reseña: ${user.name || 'Anónimo'}`;
+    const emailSubject = `Nueva Resena: ${user.name || 'Anonimo'}`;
     const emailBody = `
-      <h2>¡Nueva reseña recibida!</h2>
-      <p><strong>Cliente:</strong> ${user.name || 'Anónimo'}</p>
+      <h2>Nueva resena recibida</h2>
+      <p><strong>Cliente:</strong> ${user.name || 'Anonimo'}</p>
       <p><strong>Email:</strong> ${user.email}</p>
-      <p><strong>Calificación:</strong> ${rating} estrellas</p>
-      <p><strong>Reseña:</strong></p>
-      <blockquote style="font-style: italic; border-left: 4px solid #d4a012; padding-left: 10px;">
-        ${text.trim()}
-      </blockquote>
+      <p><strong>Calificacion:</strong> ${rating} estrellas</p>
+      <p><strong>Comentario:</strong> ${text.trim()}</p>
     `;
     await sendNotificationEmail(emailSubject, emailBody);
 
