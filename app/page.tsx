@@ -752,6 +752,12 @@ export default function HomePage() {
               <span>·</span>
               <Link href="/perfil" className="hover:text-dark-400 transition-colors">Mi Perfil</Link>
             </div>
+            <div className="mt-2 text-xs text-dark-600">
+              Powered by:{' '}
+              <a href="https://magmastudios.vercel.app" target="_blank" rel="noopener noreferrer" className="text-dark-400 hover:text-gold-400 transition-colors font-medium">
+                Magma Studios
+              </a>
+            </div>
           </div>
         </div>
       </footer>
