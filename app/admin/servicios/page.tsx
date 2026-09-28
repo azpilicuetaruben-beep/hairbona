@@ -75,9 +75,50 @@ export default function ServiciosPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    const file = files[0];
+    let file = files[0];
     
     setUploading(true);
+
+    // Comprimir la imagen en el cliente si es mayor a 1MB (muy común en celulares)
+    if (file.size > 1024 * 1024 && file.type.startsWith('image/')) {
+      try {
+        const compressedBlob = await new Promise<Blob>((resolve) => {
+          const img = new Image();
+          img.src = URL.createObjectURL(file);
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const MAX_WIDTH = 1200;
+            const MAX_HEIGHT = 1200;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            ctx?.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              if (blob) resolve(blob);
+              else resolve(file); // fallback
+            }, 'image/jpeg', 0.8);
+          };
+        });
+        file = new File([compressedBlob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' });
+      } catch (err) {
+        console.error('Error comprimiendo la imagen:', err);
+      }
+    }
+
     const body = new FormData();
     body.append('file', file);
     try {
@@ -86,12 +127,15 @@ export default function ServiciosPage() {
         body,
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error en el servidor al subir');
+      }
       if (data.url) {
         setEditForm({ ...editForm, image: data.url });
       }
     } catch (error) {
       console.error('Error uploading image', error);
-      alert('Error al subir la imagen');
+      alert('Error al subir la imagen. Verifica tu conexión o intenta con otra foto.');
     }
     setUploading(false);
   };
