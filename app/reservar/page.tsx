@@ -9,6 +9,7 @@ interface Service {
   id: string;
   name: string;
   description: string;
+  image: string | null;
   duration: number;
   price: number | null;
 }
@@ -266,7 +267,7 @@ function BookingContent() {
                 >
                   <div className="flex items-center gap-4">
                     <img 
-                      src={serviceIcons[service.name] || '/icons/corte.jpg'} 
+                      src={service.image || serviceIcons[service.name] || '/icons/corte.jpg'} 
                       alt={service.name} 
                       className="w-10 h-10 object-cover rounded-lg border border-gold-500/30 group-hover:border-gold-400 transition-colors"
                     />
@@ -315,7 +316,7 @@ function BookingContent() {
 
             <div className="glass rounded-xl p-4 mb-6 flex items-center gap-3">
               <img 
-                src={serviceIcons[selectedService?.name || ''] || '/icons/corte.jpg'} 
+                src={selectedService?.image || serviceIcons[selectedService?.name || ''] || '/icons/corte.jpg'} 
                 alt="Service icon" 
                 className="w-8 h-8 object-cover rounded border border-gold-500/30"
               />
@@ -370,7 +371,7 @@ function BookingContent() {
             <div className="glass rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex items-center gap-3">
                 <img 
-                  src={serviceIcons[selectedService?.name || ''] || '/icons/corte.jpg'} 
+                  src={selectedService?.image || serviceIcons[selectedService?.name || ''] || '/icons/corte.jpg'} 
                   alt="Service icon" 
                   className="w-8 h-8 object-cover rounded border border-gold-500/30"
                 />

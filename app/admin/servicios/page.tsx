@@ -294,34 +294,49 @@ function ServiceForm({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-dark-300 mb-1">Imagen Decorativa (Opcional)</label>
-          <div className="flex items-center gap-4">
-            {editForm.image && (
-              <img src={editForm.image} alt="Preview" className="w-12 h-12 rounded object-cover border border-dark-700" />
-            )}
+          <label className="block text-sm text-dark-300 mb-1">Imagen Decorativa (URL o Subir)</label>
+          <div className="flex flex-col gap-2">
             <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
+              type="text"
+              value={editForm.image || ''}
+              onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+              className="w-full bg-dark-900 border border-dark-700 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-gold-500 text-sm"
+              placeholder="Ej: /icons/barba.jpg o https://..."
             />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="flex items-center gap-2 px-4 py-2 bg-dark-800 text-white rounded-lg hover:bg-dark-700 transition-colors text-sm border border-dark-600 disabled:opacity-50"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-              {uploading ? 'Subiendo...' : 'Subir Imagen'}
-            </button>
-            {editForm.image && (
-              <button 
-                onClick={() => setEditForm({ ...editForm, image: '' })}
-                className="text-red-400 hover:text-red-300 text-sm ml-2"
+            <div className="flex items-center gap-4 mt-1">
+              {editForm.image && (
+                <img 
+                  src={editForm.image} 
+                  alt="Preview" 
+                  className="w-12 h-12 rounded object-cover border border-dark-700" 
+                  onError={(e) => (e.currentTarget.style.display = 'none')} 
+                  onLoad={(e) => (e.currentTarget.style.display = 'block')} 
+                />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex items-center gap-2 px-4 py-2 bg-dark-800 text-white rounded-lg hover:bg-dark-700 transition-colors text-sm border border-dark-600 disabled:opacity-50"
               >
-                Quitar
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                {uploading ? 'Subiendo...' : 'Subir Imagen'}
               </button>
-            )}
+              {editForm.image && (
+                <button 
+                  onClick={() => setEditForm({ ...editForm, image: '' })}
+                  className="text-red-400 hover:text-red-300 text-sm ml-2"
+                >
+                  Quitar
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
